@@ -36,7 +36,7 @@ function norm(c){
   c.span=c.span!==false; c.year=Math.round(+c.year)||0;
   c.dshare=Number.isFinite(+c.dshare)&&c.dshare!==null&&c.dshare!==undefined?Math.max(0,Math.min(100,Math.round(+c.dshare))):50;
   c.thr=Math.max(0,Math.min(20,Math.round((+c.thr||0)*2)/2)); c.thron=!!c.thron; c.key=typeof c.key==='string'?c.key.slice(0,12):'';
-  c.lowpri=c.lowpri===true; c.cc=c.cc==='bg'?'bg':''; // cc — страна сценария: пусто — Россия, bg — Болгария
+  c.lowpri=c.lowpri===true; c.cc=['bg','de'].includes(c.cc)?c.cc:''; // cc — страна сценария: пусто — Россия, bg — Болгария, de — Германия
   c.gate=okf(c.gate)?c.gate:-1; c.gnote=String(c.gnote||'').slice(0,400);
   c.fams.forEach((f,i)=>{ if(!okf(f.cap)||f.cap===i) f.cap=-1; });
   c.duo=[0,1].map(k=>{ const v=Math.round(+(c.duo||[])[k]); return v>=0&&v<c.fams.length?v:-1; });
@@ -64,7 +64,11 @@ const thrOn=()=>!!(C.year&&C.thron&&C.thr>0&&(R.party==='multi'||R.party==='dom'
 // Пониженный приоритет малых партий: при равной близости малая партия получает PRI от веса обычной
 const PRI=.4, pen=f=>C.lowpri&&C.fams[f]&&C.fams[f].sm?-2*SIGMA*SIGMA*Math.log(PRI):0, lowOn=()=>C.lowpri&&C.fams.some(F=>F.sm);
 const gateOut=()=>C.gate>=0&&!!C.fams[C.gate]&&S.gv>0; // партия не допущена ответом на первый вопрос
-const BGc=()=>C.cc==='bg', yourT=()=>C.year?(BGc()?'Ваше Народное собрание '+C.year+' года':'Ваша Дума '+C.year+' года'):'Ваш парламент';
+// Подписи, которые зависят от страны сценария
+const CCN={'':{your:'Ваша Дума',show:'Показать мою Думу',wb:'Выборы в Государственную думу (',inp:'в Государственной думе',fut:'Ваша Прекрасная Россия Будущего',of:'вашей Думы'},
+  bg:{your:'Ваше Народное собрание',show:'Показать моё Народное собрание',wb:'Выборы в Народное собрание Болгарии (',inp:'в Народном собрании',fut:'Ваша Прекрасная Болгария Будущего',of:'вашего парламента'},
+  de:{your:'Ваш рейхстаг',show:'Показать мой рейхстаг',wb:'Выборы в рейхстаг Германии (',inp:'в рейхстаге',fut:'Ваша Прекрасная Германия Будущего',of:'вашего рейхстага'}};
+const CN=()=>CCN[C.cc]||CCN[''], yourT=()=>C.year?CN().your+' '+C.year+' года':'Ваш парламент';
 const NEWREG=['DON','LUG','ZAP','KHE']; // регионы, включённые в 2022 году
 const maj=()=>Math.floor(C.seats/2)+1, bonus=()=>R.party==='dom'?maj():0, pool=()=>C.seats-bonus();
 const distTotal=()=>R.sys==='mixed'?Math.round(pool()*C.dshare/100):0, listTotal=()=>pool()-distTotal();
@@ -201,10 +205,11 @@ const cnt=n=>n+' '+plural(n,'вопрос','вопроса','вопросов');
 function viewBuild(){
   toBuild.hidden=true; window.scrollTo(0,0);
   app.innerHTML='<div class="stack" id="build">'+
-  '<div class="intro"><h1>Соберите свою Государственную думу</h1><p>Выберите выборы в России (от 1993 до 2026 года) или в Болгарии (2024 и 2026 годы): у каждых свои партии, свои вопросы того времени и свои невозможные союзы. Или настройте всё сами. Отвечающий двигает ползунок между двумя вариантами, а его ответы превращаются в состав Думы и правительство.</p></div>'+
+  '<div class="intro"><h1>Соберите свою Государственную думу</h1><p>Выберите выборы в России (от 1993 до 2026 года), в Болгарии (2024 и 2026 годы) или в Германии (1930 год): у каждых свои партии, свои вопросы того времени и свои невозможные союзы. Или настройте всё сами. Отвечающий двигает ползунок между двумя вариантами, а его ответы превращаются в состав Думы и правительство.</p></div>'+
   '<section class="step box"><header><h2>Пресеты</h2><p class="hint">Готовые наборы и ваши сохранённые тесты. Сохранённые пресеты хранятся в этом браузере.</p></header>'+
     '<span class="lbl" style="margin:0">Выборы в Государственную думу</span><div class="presets">'+BUILTIN.map((p,i)=>p.set.year&&!p.h&&!p.set.cc?'<button type="button" class="preset" data-act="pre" data-i="'+i+'" aria-pressed="'+(C.name===p.n)+'"><b>'+esc(p.n)+'</b><span>'+esc(p.d)+'</span></button>':'').join('')+'</div>'+
     '<span class="lbl" style="margin:0">Выборы в Народное собрание Болгарии</span><div class="presets">'+BUILTIN.map((p,i)=>p.set.cc==='bg'&&!p.h?'<button type="button" class="preset" data-act="pre" data-i="'+i+'" aria-pressed="'+(C.name===p.n)+'"><b>'+esc(p.n)+'</b><span>'+esc(p.d)+'</span></button>':'').join('')+'</div>'+
+    '<span class="lbl" style="margin:0">Выборы в рейхстаг Германии</span><div class="presets">'+BUILTIN.map((p,i)=>p.set.cc==='de'&&!p.h?'<button type="button" class="preset" data-act="pre" data-i="'+i+'" aria-pressed="'+(C.name===p.n)+'"><b>'+esc(p.n)+'</b><span>'+esc(p.d)+'</span></button>':'').join('')+'</div>'+
     '<span class="lbl" style="margin:0">Стандартный тест и мои пресеты</span><div class="presets">'+BUILTIN.map((p,i)=>p.set.year||p.h?'':'<button type="button" class="preset" data-act="pre" data-i="'+i+'" aria-pressed="'+(C.name===p.n)+'"><b>'+esc(p.n)+'</b><span>'+esc(p.d)+'</span></button>').join('')+
       USER.map((p,i)=>'<div class="pwrap"><button type="button" class="preset" data-act="upre" data-i="'+i+'" aria-pressed="'+(C.name===p.n)+'"><b>'+esc(p.n)+'</b><span>Мой пресет · '+mest(p.c.seats)+' · '+p.c.fams.length+' '+plural(p.c.fams.length,'партия','партии','партий')+'</span></button><button type="button" class="x" data-act="delPre" data-i="'+i+'" aria-label="Удалить пресет">×</button></div>').join('')+'</div>'+
     '<div class="psave"><input class="in" id="pname" value="'+esc(C.name)+'" maxlength="60" aria-label="Название пресета" placeholder="Название пресета"><button type="button" class="chip" data-act="savePre">Сохранить текущий тест как пресет</button>'+(PREV?'<button type="button" class="link" data-act="undo">Вернуть тест, который был до загрузки</button>':'')+'<span class="hint" id="pmsg">'+esc(PMSG)+'</span></div></section>'+
@@ -508,7 +513,7 @@ function viewBoard(){
     '</div><p class="msg" id="msg" aria-live="polite"></p></div></div>'+
     '<div class="bfoot"><span>Абсолютное большинство: '+M+'</span><span>'+
       (R.party==='one'?'Все места у партии, которая сейчас ближе всего к вашим ответам':R.party==='dom'?'Ещё '+bonus()+' — гарантированное большинство: кому оно достанется, решится в конце теста':!B.k?'В этом блоке нет ответов: места поделены поровну':R.sys==='mixed'?(n-dn)+' по списку и '+dn+' по округам':'По вашим ответам в этой теме')+'</span></div></div>'+
-    '<div class="bnav"><span></span><button type="button" class="cta" id="cont">'+(last?(C.year?(BGc()?'Показать моё Народное собрание':'Показать мою Думу'):'Показать мой парламент'):'Дальше: '+esc(C.topics[S.order[S.bi+1]].n))+'</button></div></section>';
+    '<div class="bnav"><span></span><button type="button" class="cta" id="cont">'+(last?(C.year?CN().show:'Показать мой парламент'):'Дальше: '+esc(C.topics[S.order[S.bi+1]].n))+'</button></div></section>';
   const rows=$$('.sr',app), bh=$('#bh');
   const rank=(st,tie)=>{ const o=st.map((_,f)=>f).sort((a,b)=>st[b]-st[a]||(tie?tie[a]-tie[b]:0)||a-b), r=[]; o.forEach((f,i)=>r[f]=i); return r; };
   const show=(st,rk,pts)=>{ rows.forEach((r,f)=>{ r.style.top=rk[f]*44+'px'; $('.rk',r).textContent=rk[f]+1; $('.tot',r).textContent=st[f]; $('.bar span',r).style.width=Math.min(100,st[f]/(M/.7)*100)+'%'; r.classList.toggle('maj',st[f]>=M);
@@ -696,9 +701,9 @@ function wikibox(st,li,di,bo){
       (bo.some(x=>x)?row('Гарантировано',f=>bo[f]||'—'):'')+
       (anyReal?row('На выборах '+C.year+' года, по списку',(f,F)=>real(F)||'—'):'')+
       '<tr><td colspan="4" class="wb-hr"></td></tr>'; }
-  el.innerHTML='<table class="wb"><tbody><tr><th colspan="4" class="wb-title">'+(C.year?(BGc()?'Выборы в Народное собрание Болгарии ('+C.year+')':'Выборы в Государственную думу ('+C.year+')'):'Парламентские выборы')+'<div>по ответам на тест</div></th></tr>'+
+  el.innerHTML='<table class="wb"><tbody><tr><th colspan="4" class="wb-title">'+(C.year?CN().wb+C.year+')':'Парламентские выборы')+'<div>по ответам на тест</div></th></tr>'+
     (yi>=0?'<tr><td colspan="4"><div class="wb-nav"><span>'+(yi>0?'← '+years[yi-1]:'')+'</span><b>'+C.year+'</b><span>'+(yi<years.length-1?years[yi+1]+' →':'')+'</span></div></td></tr>':'')+
-    '<tr><td colspan="4" class="wb-sub">Все '+N+' '+plural(N,'место','места','мест')+' '+(C.year?(BGc()?'в Народном собрании':'в Государственной думе'):'в парламенте')+'<br>Для большинства необходимо '+M+' '+plural(M,'место','места','мест')+'<br>Конституционное большинство — '+CM()+(thrOn()?'<br>Проходной барьер — '+thrTxt()+'%':'')+'</td></tr>'+rows+
+    '<tr><td colspan="4" class="wb-sub">Все '+N+' '+plural(N,'место','места','мест')+' '+(C.year?CN().inp:'в парламенте')+'<br>Для большинства необходимо '+M+' '+plural(M,'место','места','мест')+'<br>Конституционное большинство — '+CM()+(thrOn()?'<br>Проходной барьер — '+thrTxt()+'%':'')+'</td></tr>'+rows+
     '<tr><td colspan="4"><div class="hemi" id="wbh"></div><div class="wb-cap">Распределение мест по итогам теста</div></td></tr>'+
     (rest.length?'<tr><th scope="row">Остальные</th><td colspan="3" class="wb-left">'+rest.map(f=>esc(C.fams[f].n)+' — '+st[f]).join(', ')+'</td></tr>':'')+
     '<tr><th scope="row">Система</th><td colspan="3" class="wb-left">'+SYSF[R.party]+'; '+(mixed?'смешанная: список и округа':'партийные списки')+'</td></tr></tbody></table>';
@@ -806,9 +811,9 @@ function futDefs(){ if(document.getElementById('futdefs')) return; const M=windo
 // В контуре Украины Крыма нет: он рисуется отдельно, когда Украина в составе или у концовки стоит cr.
 // nr — нынешние границы: Донецкая, Луганская, Запорожская и Херсонская области в составе России (целиком, как в российской Конституции)
 function futMapSvg(m,col){
-  if(m.bg){ const B=window.BGMAP; if(!B) return ''; const sp={}, inc=m.inc||[]; (m.split||[]).forEach(g=>g[0].forEach(id=>{ sp[id]=g[1]; })); // Болгария по областям, соседи серым
+  if(m.bg||m.de){ const B=m.bg?window.BGMAP:window.DEMAP; if(!B) return ''; const sp={}, inc=m.inc||[], O=B.o||{}; (m.split||[]).forEach(g=>g[0].forEach(id=>{ sp[id]=g[1]; })); // своя карта страны: соседи серым, only — уцелевшая часть
     return '<svg class="fut-map" viewBox="0 0 '+B.w+' '+B.h+'" role="img" aria-label="Границы">'+Object.keys(B.c).map(k=>'<path d="'+B.c[k]+'" '+(inc.includes(k)?'fill="'+col+'" fill-opacity=".7"':'class="off"')+'/>').join('')+
-      Object.keys(B.r).map(id=>'<path d="'+B.r[id]+'" fill="'+(sp[id]||col)+'"/>').join('')+'</svg>'; }
+      Object.keys(B.r).map(id=>'<path d="'+B.r[id]+'" '+(m.only?'class="off"':'fill="'+(sp[id]||col)+'"')+'/>').join('')+(m.only||[]).filter(id=>O[id]).map(id=>'<path d="'+O[id]+'" fill="'+col+'"/>').join('')+'</svg>'; }
   const M=window.RUMAP, K=window.FUTMAP||{}; if(!M) return ''; futDefs();
   let b=[0,0,M.w,M.h]; const inc=(m.inc||[]).concat(m.nr&&!(m.inc||[]).includes('UKR')?['DON','LUG','ZAP','KHE']:[]).filter(k=>K[k]), solid={DON:1,LUG:1,ZAP:1,KHE:1}; inc.forEach(k=>{ const q=K[k].b; b=[Math.min(b[0],q[0]),Math.min(b[1],q[1]),Math.max(b[2],q[2]),Math.max(b[3],q[3])]; });
   const sp={}; (m.split||[]).forEach(g=>g[0].forEach(id=>{ sp[id]=g[1]; }));
@@ -824,7 +829,7 @@ function futCard(e,st,when){ const col=e.party[1], ph=PH[e.lead]||'', lgo=LG[e.p
     '<dl>'+row('Идеология',esc(e.ideo))+row('Форма правления',esc(e.form))+row('Правящая партия',(lgo?'<img class="logo" src="'+esc(lgo)+'" alt="" style="border-color:'+esc(col)+'">':'<span class="fut-mono" style="background:'+esc(col)+'">'+esc(mono)+'</span>')+esc(e.party[0]))+'</dl></div>'+
     '<div class="fut-vis"><figure>'+futMapSvg(e.map,col)+'<figcaption>Границы</figcaption></figure></div></div></div>'; }
 function futureBox(st){ const r=futRank(st); if(!r) return '';
-  return '<div class="box fut"><h3>'+(BGc()?'Ваша Прекрасная Болгария Будущего':'Ваша Прекрасная Россия Будущего')+'</h3><p class="hint">'+esc(r.era.intro)+' Концовка подобрана по ответам во всех темах (тема «Будущее» весит вдвое больше) и по составу '+(BGc()?'вашего парламента':'вашей Думы')+'. Сценарий вымышленный, политики настоящие.</p>'+
+  return '<div class="box fut"><h3>'+CN().fut+'</h3><p class="hint">'+esc(r.era.intro)+' Концовка подобрана по ответам во всех темах (тема «Будущее» весит вдвое больше) и по составу '+CN().of+'. Сценарий вымышленный, политики настоящие.</p>'+
     futCard(r.list[0].e,st,r.era.when)+
     '<p class="hint" style="margin-top:10px">Могло быть и так: '+r.list.slice(1,4).map(x=>esc(x.e.lead)+' — '+esc(x.e.n)+' ('+esc(x.e.ideo)+')').join('; ')+'.</p>'+
     '</div>'; }

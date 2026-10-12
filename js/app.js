@@ -36,7 +36,7 @@ function norm(c){
   c.span=c.span!==false; c.year=Math.round(+c.year)||0;
   c.dshare=Number.isFinite(+c.dshare)&&c.dshare!==null&&c.dshare!==undefined?Math.max(0,Math.min(100,Math.round(+c.dshare))):50;
   c.thr=Math.max(0,Math.min(20,Math.round((+c.thr||0)*2)/2)); c.thron=!!c.thron; c.key=typeof c.key==='string'?c.key.slice(0,12):'';
-  c.lowpri=c.lowpri===true; c.cc=c.cc==='bg'?'bg':''; // cc — страна сценария: пусто — Россия, bg — Болгария
+  c.lowpri=c.lowpri===true; c.cc=['bg','de'].includes(c.cc)?c.cc:''; // cc — страна сценария: пусто — Россия, bg — Болгария, de — Германия
   c.gate=okf(c.gate)?c.gate:-1; c.gnote=String(c.gnote||'').slice(0,400);
   c.fams.forEach((f,i)=>{ if(!okf(f.cap)||f.cap===i) f.cap=-1; });
   c.duo=[0,1].map(k=>{ const v=Math.round(+(c.duo||[])[k]); return v>=0&&v<c.fams.length?v:-1; });
@@ -64,7 +64,11 @@ const thrOn=()=>!!(C.year&&C.thron&&C.thr>0&&(R.party==='multi'||R.party==='dom'
 // Пониженный приоритет малых партий: при равной близости малая партия получает PRI от веса обычной
 const PRI=.4, pen=f=>C.lowpri&&C.fams[f]&&C.fams[f].sm?-2*SIGMA*SIGMA*Math.log(PRI):0, lowOn=()=>C.lowpri&&C.fams.some(F=>F.sm);
 const gateOut=()=>C.gate>=0&&!!C.fams[C.gate]&&S.gv>0; // партия не допущена ответом на первый вопрос
-const BGc=()=>C.cc==='bg', yourT=()=>C.year?(BGc()?'Your National Assembly of '+C.year+' ':'Your Duma of '+C.year+' '):'Your parliament';
+// Подписи, которые зависят от страны сценария
+const CCN={'':{your:'Your Duma of',show:'Show my Duma',wb:'State Duma election (',inp:'in the State Duma',fut:'Your Beautiful Russia of the Future',of:'your Duma'},
+  bg:{your:'Your National Assembly of',show:'Show my National Assembly',wb:'Election to the National Assembly of Bulgaria (',inp:'in the National Assembly',fut:'Your Beautiful Bulgaria of the Future',of:'your parliament'},
+  de:{your:'Your Reichstag of',show:'Show my Reichstag',wb:'German Reichstag election (',inp:'in the Reichstag',fut:'Your Beautiful Germany of the Future',of:'your Reichstag'}};
+const CN=()=>CCN[C.cc]||CCN[''], yourT=()=>C.year?CN().your+' '+C.year+' ':'Your parliament';
 const NEWREG=['DON','LUG','ZAP','KHE']; // регионы, включённые в 2022 году
 const maj=()=>Math.floor(C.seats/2)+1, bonus=()=>R.party==='dom'?maj():0, pool=()=>C.seats-bonus();
 const distTotal=()=>R.sys==='mixed'?Math.round(pool()*C.dshare/100):0, listTotal=()=>pool()-distTotal();
@@ -201,10 +205,11 @@ const cnt=n=>n+' '+plural(n,'question','questions','questions');
 function viewBuild(){
   toBuild.hidden=true; window.scrollTo(0,0);
   app.innerHTML='<div class="stack" id="build">'+
-  '<div class="intro"><h1>Build your own State Duma</h1><p>Pick an election in Russia (from 1993 to 2026) or in Bulgaria (2024 and 2026): each has its own parties, its own questions of the day and its own impossible alliances. Or set everything up yourself. The respondent moves a slider between two options, and the answers turn into the make-up of the Duma and a cabinet.</p></div>'+
+  '<div class="intro"><h1>Build your own State Duma</h1><p>Pick an election in Russia (from 1993 to 2026), in Bulgaria (2024 and 2026) or in Germany (1930): each has its own parties, its own questions of the day and its own impossible alliances. Or set everything up yourself. The respondent moves a slider between two options, and the answers turn into the make-up of the Duma and a cabinet.</p></div>'+
   '<section class="step box"><header><h2>Presets</h2><p class="hint">Ready-made sets and your saved tests. Saved presets are stored in this browser.</p></header>'+
     '<span class="lbl" style="margin:0">State Duma elections</span><div class="presets">'+BUILTIN.map((p,i)=>p.set.year&&!p.h&&!p.set.cc?'<button type="button" class="preset" data-act="pre" data-i="'+i+'" aria-pressed="'+(C.name===p.n)+'"><b>'+esc(p.n)+'</b><span>'+esc(p.d)+'</span></button>':'').join('')+'</div>'+
     '<span class="lbl" style="margin:0">Elections to the National Assembly of Bulgaria</span><div class="presets">'+BUILTIN.map((p,i)=>p.set.cc==='bg'&&!p.h?'<button type="button" class="preset" data-act="pre" data-i="'+i+'" aria-pressed="'+(C.name===p.n)+'"><b>'+esc(p.n)+'</b><span>'+esc(p.d)+'</span></button>':'').join('')+'</div>'+
+    '<span class="lbl" style="margin:0">German Reichstag elections</span><div class="presets">'+BUILTIN.map((p,i)=>p.set.cc==='de'&&!p.h?'<button type="button" class="preset" data-act="pre" data-i="'+i+'" aria-pressed="'+(C.name===p.n)+'"><b>'+esc(p.n)+'</b><span>'+esc(p.d)+'</span></button>':'').join('')+'</div>'+
     '<span class="lbl" style="margin:0">Standard test and my presets</span><div class="presets">'+BUILTIN.map((p,i)=>p.set.year||p.h?'':'<button type="button" class="preset" data-act="pre" data-i="'+i+'" aria-pressed="'+(C.name===p.n)+'"><b>'+esc(p.n)+'</b><span>'+esc(p.d)+'</span></button>').join('')+
       USER.map((p,i)=>'<div class="pwrap"><button type="button" class="preset" data-act="upre" data-i="'+i+'" aria-pressed="'+(C.name===p.n)+'"><b>'+esc(p.n)+'</b><span>My preset · '+mest(p.c.seats)+' · '+p.c.fams.length+' '+plural(p.c.fams.length,'party','parties','parties')+'</span></button><button type="button" class="x" data-act="delPre" data-i="'+i+'" aria-label="Delete preset">×</button></div>').join('')+'</div>'+
     '<div class="psave"><input class="in" id="pname" value="'+esc(C.name)+'" maxlength="60" aria-label="Preset name" placeholder="Preset name"><button type="button" class="chip" data-act="savePre">Save the current test as a preset</button>'+(PREV?'<button type="button" class="link" data-act="undo">Restore the test that was open before loading</button>':'')+'<span class="hint" id="pmsg">'+esc(PMSG)+'</span></div></section>'+
@@ -508,7 +513,7 @@ function viewBoard(){
     '</div><p class="msg" id="msg" aria-live="polite"></p></div></div>'+
     '<div class="bfoot"><span>Absolute majority: '+M+'</span><span>'+
       (R.party==='one'?'All seats go to the party currently closest to your answers':R.party==='dom'?'Another '+bonus()+' is the guaranteed majority: who gets it is decided at the end of the test':!B.k?'No answers in this block: the seats are split equally':R.sys==='mixed'?(n-dn)+' by party list and '+dn+' by districts':'Based on your answers on this topic')+'</span></div></div>'+
-    '<div class="bnav"><span></span><button type="button" class="cta" id="cont">'+(last?(C.year?(BGc()?'Show my National Assembly':'Show my Duma'):'Show my parliament'):'Next: '+esc(C.topics[S.order[S.bi+1]].n))+'</button></div></section>';
+    '<div class="bnav"><span></span><button type="button" class="cta" id="cont">'+(last?(C.year?CN().show:'Show my parliament'):'Next: '+esc(C.topics[S.order[S.bi+1]].n))+'</button></div></section>';
   const rows=$$('.sr',app), bh=$('#bh');
   const rank=(st,tie)=>{ const o=st.map((_,f)=>f).sort((a,b)=>st[b]-st[a]||(tie?tie[a]-tie[b]:0)||a-b), r=[]; o.forEach((f,i)=>r[f]=i); return r; };
   const show=(st,rk,pts)=>{ rows.forEach((r,f)=>{ r.style.top=rk[f]*44+'px'; $('.rk',r).textContent=rk[f]+1; $('.tot',r).textContent=st[f]; $('.bar span',r).style.width=Math.min(100,st[f]/(M/.7)*100)+'%'; r.classList.toggle('maj',st[f]>=M);
@@ -696,9 +701,9 @@ function wikibox(st,li,di,bo){
       (bo.some(x=>x)?row('Guaranteed',f=>bo[f]||'—'):'')+
       (anyReal?row('In the '+C.year+' election, party-list vote',(f,F)=>real(F)||'—'):'')+
       '<tr><td colspan="4" class="wb-hr"></td></tr>'; }
-  el.innerHTML='<table class="wb"><tbody><tr><th colspan="4" class="wb-title">'+(C.year?(BGc()?'Election to the National Assembly of Bulgaria ('+C.year+')':'State Duma election ('+C.year+')'):'Parliamentary election')+'<div>based on test answers</div></th></tr>'+
+  el.innerHTML='<table class="wb"><tbody><tr><th colspan="4" class="wb-title">'+(C.year?CN().wb+C.year+')':'Parliamentary election')+'<div>based on test answers</div></th></tr>'+
     (yi>=0?'<tr><td colspan="4"><div class="wb-nav"><span>'+(yi>0?'← '+years[yi-1]:'')+'</span><b>'+C.year+'</b><span>'+(yi<years.length-1?years[yi+1]+' →':'')+'</span></div></td></tr>':'')+
-    '<tr><td colspan="4" class="wb-sub">All '+N+' '+plural(N,'seat','seats','seats')+' '+(C.year?(BGc()?'in the National Assembly':'in the State Duma'):'in the parliament')+'<br>A majority requires '+M+' '+plural(M,'seat','seats','seats')+'<br>Constitutional majority — '+CM()+(thrOn()?'<br>Electoral threshold — '+thrTxt()+'%':'')+'</td></tr>'+rows+
+    '<tr><td colspan="4" class="wb-sub">All '+N+' '+plural(N,'seat','seats','seats')+' '+(C.year?CN().inp:'in the parliament')+'<br>A majority requires '+M+' '+plural(M,'seat','seats','seats')+'<br>Constitutional majority — '+CM()+(thrOn()?'<br>Electoral threshold — '+thrTxt()+'%':'')+'</td></tr>'+rows+
     '<tr><td colspan="4"><div class="hemi" id="wbh"></div><div class="wb-cap">Distribution of seats according to the test</div></td></tr>'+
     (rest.length?'<tr><th scope="row">Others</th><td colspan="3" class="wb-left">'+rest.map(f=>esc(C.fams[f].n)+' — '+st[f]).join(', ')+'</td></tr>':'')+
     '<tr><th scope="row">System</th><td colspan="3" class="wb-left">'+SYSF[R.party]+'; '+(mixed?'mixed: party list and districts':'party lists')+'</td></tr></tbody></table>';
@@ -806,9 +811,9 @@ function futDefs(){ if(document.getElementById('futdefs')) return; const M=windo
 // В контуре Украины Крыма нет: он рисуется отдельно, когда Украина в составе или у концовки стоит cr.
 // nr — нынешние границы: Донецкая, Луганская, Запорожская и Херсонская области в составе России (целиком, как в российской Конституции)
 function futMapSvg(m,col){
-  if(m.bg){ const B=window.BGMAP; if(!B) return ''; const sp={}, inc=m.inc||[]; (m.split||[]).forEach(g=>g[0].forEach(id=>{ sp[id]=g[1]; })); // Болгария по областям, соседи серым
+  if(m.bg||m.de){ const B=m.bg?window.BGMAP:window.DEMAP; if(!B) return ''; const sp={}, inc=m.inc||[], O=B.o||{}; (m.split||[]).forEach(g=>g[0].forEach(id=>{ sp[id]=g[1]; })); // своя карта страны: соседи серым, only — уцелевшая часть
     return '<svg class="fut-map" viewBox="0 0 '+B.w+' '+B.h+'" role="img" aria-label="Borders">'+Object.keys(B.c).map(k=>'<path d="'+B.c[k]+'" '+(inc.includes(k)?'fill="'+col+'" fill-opacity=".7"':'class="off"')+'/>').join('')+
-      Object.keys(B.r).map(id=>'<path d="'+B.r[id]+'" fill="'+(sp[id]||col)+'"/>').join('')+'</svg>'; }
+      Object.keys(B.r).map(id=>'<path d="'+B.r[id]+'" '+(m.only?'class="off"':'fill="'+(sp[id]||col)+'"')+'/>').join('')+(m.only||[]).filter(id=>O[id]).map(id=>'<path d="'+O[id]+'" fill="'+col+'"/>').join('')+'</svg>'; }
   const M=window.RUMAP, K=window.FUTMAP||{}; if(!M) return ''; futDefs();
   let b=[0,0,M.w,M.h]; const inc=(m.inc||[]).concat(m.nr&&!(m.inc||[]).includes('UKR')?['DON','LUG','ZAP','KHE']:[]).filter(k=>K[k]), solid={DON:1,LUG:1,ZAP:1,KHE:1}; inc.forEach(k=>{ const q=K[k].b; b=[Math.min(b[0],q[0]),Math.min(b[1],q[1]),Math.max(b[2],q[2]),Math.max(b[3],q[3])]; });
   const sp={}; (m.split||[]).forEach(g=>g[0].forEach(id=>{ sp[id]=g[1]; }));
@@ -824,7 +829,7 @@ function futCard(e,st,when){ const col=e.party[1], ph=PH[e.lead]||'', lgo=LG[e.p
     '<dl>'+row('Ideology',esc(e.ideo))+row('Form of government',esc(e.form))+row('Ruling party',(lgo?'<img class="logo" src="'+esc(lgo)+'" alt="" style="border-color:'+esc(col)+'">':'<span class="fut-mono" style="background:'+esc(col)+'">'+esc(mono)+'</span>')+esc(e.party[0]))+'</dl></div>'+
     '<div class="fut-vis"><figure>'+futMapSvg(e.map,col)+'<figcaption>Borders</figcaption></figure></div></div></div>'; }
 function futureBox(st){ const r=futRank(st); if(!r) return '';
-  return '<div class="box fut"><h3>'+(BGc()?'Your Beautiful Bulgaria of the Future':'Your Beautiful Russia of the Future')+'</h3><p class="hint">'+esc(r.era.intro)+' The ending is chosen from your answers in every topic (the “Future” topic counts double) and from the make-up of '+(BGc()?'your parliament':'your Duma')+'. The scenario is fictional, the politicians are real.</p>'+
+  return '<div class="box fut"><h3>'+CN().fut+'</h3><p class="hint">'+esc(r.era.intro)+' The ending is chosen from your answers in every topic (the “Future” topic counts double) and from the make-up of '+CN().of+'. The scenario is fictional, the politicians are real.</p>'+
     futCard(r.list[0].e,st,r.era.when)+
     '<p class="hint" style="margin-top:10px">It could also have gone this way: '+r.list.slice(1,4).map(x=>esc(x.e.lead)+' — '+esc(x.e.n)+' ('+esc(x.e.ideo)+')').join('; ')+'.</p>'+
     '</div>'; }
