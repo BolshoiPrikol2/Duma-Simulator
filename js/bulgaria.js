@@ -1,0 +1,208 @@
+// ══════ Болгария: выборы в Народное собрание в октябре 2024 года и в апреле 2026 года ══════
+// Формат тот же, что в data.js и future.js. Сценарии добавляются в BUILTIN, концовки — в FUT.bg.
+// Проценты — доля от голосов, поданных за партии (так считает барьер болгарская ЦИК).
+const BGT=[
+  ['Economy and the euro','The euro, taxes, energy','#94A8F9','More state','More market'],
+  ['Social policy','Pensions, healthcare, demography','#6DCAAE','More guarantees','More personal responsibility'],
+  ['Power and justice','Corruption, the prosecution service, elections','#EF92B3','More change','More stability'],
+  ['Order and values','Security, family, church','#9DA4B1','More freedoms','More tradition'],
+  ['Nation and minorities','Turks, Roma, Macedonia, migration','#F9C566','More openness','More national'],
+  ['Foreign policy','The EU, NATO, Russia, Ukraine','#77B1E6','Westward course','An independent course'],
+  ['The Future','Which way Bulgaria should go next','#B79CF2','Gradual change','Radical turn']
+];
+// Вопросы: [с какого года, по какой год, тема, d, заголовок, A, B, черты A, черты B]
+const BGQ=[
+  [2024,2024,0,-1,'The euro','Adopt the euro as soon as possible','Keep the lev: the euro will push prices up and the country will lose its independence',['euro','mkt'],['sov','prot','pop']],
+  [2026,2026,0,-1,'The euro','The euro was adopted in 2026, and rightly so: there is no way back','Bring back the lev through a referendum',['euro','mkt'],['sov','prot','pop']],
+  [2024,2026,0,-1,'The flat tax','Keep the single 10% rate for everyone','Introduce a progressive scale: the rich pay more',['tax_lo','biz'],['tax_hi','equal']],
+  [2024,2026,0,-1,'Budget deficit','Keep the deficit within 3%, even if spending has to be cut','Raise wages and pensions, even at the cost of deficit and debt',['self','stab'],['welfare','gos']],
+  [2024,2026,0,1,'Coal and nuclear','Keep the coal plants and build new units at the Kozloduy nuclear plant at state expense','Close coal and bet on solar, wind and private investment',['gos','growth','nat'],['eco','mkt']],
+  [2024,2026,0,1,'The Burgas refinery','The state should buy out the Lukoil refinery','Sell it to a private investor',['nat','gos'],['priv','mkt']],
+  [2024,2026,0,1,'Farmers','Protect Bulgarian farmers from cheap imports, including Ukrainian grain','An open market: those who work efficiently will survive',['prot','agr'],['mkt']],
+  [2024,2026,0,1,'Minimum wage','Raise it every year by formula: half the average wage','Do not tie it to a formula: small business will not cope',['labor','welfare'],['biz']],
+  [2024,2026,0,1,'State companies','Railways, the post and water supply should stay in state hands','Put them out to concession and privatise them',['nat','pub'],['priv']],
+  [2024,2026,0,1,'Prices','Cap mark-ups on basic foods','The market sets prices; the state helps only the poor',['gos','pop'],['mkt']],
+  [2026,2026,0,-1,'The 2026 budget','The protests against the budget were justified: taxes and contributions must not be raised','Raising contributions was necessary to pay wages and pensions',['tax_lo','biz','pop'],['welfare','gos']],
+  [2024,2026,1,1,'Pensions','Recalculate all pensions and raise the minimum one','Develop private funded pension schemes',['welfare'],['choice','self']],
+  [2024,2026,1,1,'Healthcare','A single state health fund and free care','Competition between private insurance funds',['pub'],['choice','mkt']],
+  [2024,2026,1,1,'Emigration','The state should bring emigrants back with money, housing and jobs','People will come back on their own when wages rise',['welfare','gos','nation'],['mkt','self']],
+  [2024,2026,1,1,'Birth rate','Large payments for the second and third child','Help only families in need',['welfare','trad'],['self']],
+  [2024,2026,1,1,'Teachers','Raise teachers’ pay to 125% of the national average','Pay by results and develop private schools',['pub','labor'],['choice']],
+  [2024,2026,1,1,'Doctors and nurses','Sharply raise their pay from the budget so that they do not leave','Let hospitals earn their own money and decide how much to pay',['pub','welfare'],['mkt']],
+  [2024,2026,1,1,'Poor regions','The state should invest in the north-west and the villages even when it does not pay','Invest where the return is higher and help people move',['equal','gos','agr'],['growth','mkt']],
+  [2024,2026,2,1,'The prosecutor general','Limit his power and create a mechanism to investigate the prosecutor general himself','Leave the prosecution alone: such a reform is political pressure',['plural','privacy'],['stab','law']],
+  [2024,2026,2,1,'Supreme Judicial Council','Renew its membership and remove the political quotas','Leave it as it is',['plural'],['stab']],
+  [2024,2026,2,1,'The “Peevski model”','Delyan Peevski’s influence over courts, security services and government must be dismantled','This is a political campaign against one man',['plural','pop'],['stab','biz']],
+  [2024,2026,2,1,'Machine voting','Vote on machines only: a paper ballot is easy to falsify','Keep paper and the right to choose how to vote',['tech','plural'],['stab','trad']],
+  [2024,2026,2,1,'Vote buying','Prison for the organisers and a ban on parties caught buying votes','The current measures are enough',['law','plural'],['stab']],
+  [2024,2026,2,-1,'Form of government','Keep the parliamentary republic','Switch to a presidential republic',['parl'],['pres']],
+  [2024,2026,2,1,'A new constitution','Convene a Grand National Assembly and write the constitution anew','Targeted amendments are enough',['direct','rad'],['evo','stab']],
+  [2024,2026,2,1,'Referendums','Lower the threshold and hold them more often','Important decisions should be taken by parliament',['direct'],['parl']],
+  [2024,2026,2,1,'Number of MPs','Cut parliament from 240 to 120 MPs','Keep 240',['pop','direct'],['stab','parl']],
+  [2024,2024,2,-1,'Caretaker governments','The president should be free to choose the caretaker prime minister','Keep the limits introduced by the 2023 amendments',['pres'],['parl']],
+  [2026,2026,2,-1,'One-party majority','One party with a majority means stability at last','Power without a counterweight is dangerous whoever holds it',['stab','pres'],['plural','parl']],
+  [2024,2026,3,1,'The ban on “propaganda” in schools','The 2024 law banning “propaganda of non-traditional orientation” in schools should be repealed','The ban is right: school is no place for ideology',['lib','prog'],['trad','auth']],
+  [2024,2026,3,1,'Istanbul Convention','Ratify the convention on protecting women from violence','Do not ratify it: it imposes alien concepts',['prog','lib'],['trad','rel']],
+  [2024,2026,3,1,'Foreign agents','A foreign agents law is not needed','A register of foreign-funded organisations is needed',['lib','plural'],['sov','auth']],
+  [2024,2026,3,1,'Church and school','The church is separate from the state and the school','Orthodoxy is the foundation of the nation: religion should be taught in schools',['sec'],['rel','trad']],
+  [2024,2026,3,1,'The army','A professional army without conscription','Bring back compulsory military training',['lib','pac'],['mil','nation']],
+  [2024,2026,3,1,'Defence spending','Do not raise it above 2% of GDP','Raise it to 3–5% of GDP, as NATO asks',['pac','welfare'],['mil','west']],
+  [2024,2026,3,1,'Security services','Put the security services and wiretapping under parliamentary control','Give the services more powers',['privacy','plural'],['auth','law']],
+  [2024,2026,3,1,'Petty crime and drugs','No prison for small doses; treat addicts','Harsh punishment with no exceptions',['rehab','lib'],['law']],
+  [2024,2026,3,1,'Monument to the Soviet Army','It was right to dismantle it','The monument in Sofia should be put back',['west','lib'],['soviet','eurasia']],
+  [2024,2026,4,1,'North Macedonia','Lift the veto: let the neighbours join the EU','The veto stays until Bulgarians are written into North Macedonia’s constitution',['cosmo','euro'],['nation','sov']],
+  [2024,2026,4,1,'The Macedonian language','It is a separate language and nation','It is a dialect of Bulgarian and part of Bulgarian history',['cosmo','multi'],['nation','emp']],
+  [2024,2026,4,1,'The Turkish language','Allow campaigning and schooling in the mother tongue','Bulgarian only, officially',['lang_min','multi'],['lang_one','assim']],
+  [2024,2026,4,1,'Ethnic parties','A party of the Turkish minority is a normal part of the system','Parties on an ethnic basis should be banned, as the constitution requires',['multi'],['nation','unity']],
+  [2024,2026,4,1,'Roma','Integration: schools, housing, jobs','Toughness: demolish illegal settlements, benefits only for those who work',['multi','welfare'],['law','assim']],
+  [2024,2026,4,1,'Workers from abroad','Bring in workers from Asia: the economy is short of hands','Restrict it: bring Bulgarians back first',['imm_pro','biz'],['imm_anti','nation']],
+  [2024,2026,4,1,'Refugees and the border','Accept refugees under EU quotas','Close the border with Turkey and refuse the quotas',['imm_pro','euro'],['imm_anti','sov']],
+  [2024,2026,4,1,'Voting abroad','Expand it: more polling stations and online voting','Limit the number of polling stations in Turkey',['plural','cosmo'],['nation']],
+  [2024,2026,5,1,'The war in Ukraine','Continue military aid to Ukraine','Stop arms deliveries and push for negotiations',['west','mil'],['pac','sov']],
+  [2024,2026,5,1,'Sanctions against Russia','Keep and tighten them','Lift them',['west','euro'],['eurasia','sov']],
+  [2024,2026,5,1,'NATO','More allied bases and troops in Bulgaria','Neutrality: close the bases or leave NATO',['west','mil'],['sov','pac','antiwest']],
+  [2024,2026,5,1,'The European Union','Go deeper into the EU core: common defence, a common budget','Take powers back from Brussels or reconsider membership',['euro','cosmo'],['sov','nation','antiwest']],
+  [2024,2026,5,1,'Russia','Russia is a threat to Bulgaria','Russia is a historic ally; relations should be restored',['west'],['eurasia','antiwest']],
+  [2024,2026,5,1,'Turkey','A strategic partner and neighbour','Its influence through religion and parties should be limited',['cosmo','multi'],['nation','sov']],
+  [2024,2026,5,1,'The Green Deal','Meet the EU’s climate commitments','Abandon them: they are killing the energy sector',['eco','euro'],['growth','sov']],
+  [2024,2026,5,1,'Ukraine in the EU','Support Ukraine’s accession','Oppose it: it will hit Bulgarian farmers and the budget',['euro','west'],['sov','prot','agr']],
+  [2026,2026,5,1,'The new government’s course','The course towards the EU and NATO must not be blurred','A pragmatic policy in all directions is needed, Moscow included',['west','euro'],['sov','eurasia']],
+  [2024,2026,6,1,'The path of change','Change the country gradually: elections, courts, reforms','The system is rotten: a rupture and a new republic are needed',['evo','stab'],['rad']],
+  [2024,2026,6,1,'San Stefano Bulgaria','Bulgaria’s borders are final','Macedonia is Bulgarian land; unification must happen',['evo','cosmo'],['emp','nation']],
+  [2024,2026,6,1,'Monarchy','Bulgaria should remain a republic','Bring back the tsar',['sec','evo'],['mon','trad']],
+  [2024,2026,6,-1,'United States of Europe','Bulgaria should become part of a single federal European state','Only a union of sovereign states',['euro','cosmo','rad'],['sov','nation']],
+  [2024,2026,6,1,'Union with Russia','That is out of the question','Leave the EU and NATO and enter a union with Russia',['west','evo'],['eurasia','antiwest','rad']],
+  [2024,2026,6,1,'Return to socialism','There must be no return to socialism','Restore the socialist state',['mkt','evo'],['soviet','nat','rad']],
+  [2024,2026,6,1,'Lustration','Not needed: too many years have passed','Remove former State Security officers and the current elite',['stab','evo'],['rad','plural']],
+  [2024,2026,6,1,'Autonomy','Bulgaria is a unitary state','Give autonomy to areas with a Turkish majority',['unity','cent'],['sep','fed','lang_min']],
+  [2024,2026,6,1,'A strong hand','Parliamentary democracy with its disputes and coalitions','A strong leader who rules without regard for parties',['plural','parl','evo'],['auth','pres','rad']],
+  [2024,2026,6,1,'State religion','The state stays secular','Orthodoxy should become the state religion',['sec','lib'],['rel','trad']],
+  [2024,2026,6,1,'Who decides','The main decisions are taken by voters','Professional managers should decide, not a vote',['direct','plural'],['tech','auth']],
+  [2024,2026,6,1,'How much state is needed','The state should look after citizens and steer the economy','The state cut to a minimum: low taxes, the rest is a private matter',['gos','welfare'],['self','tax_lo','lib','rad']]
+];
+// Черты партий
+const BG_GERB={evo:2,euro:3,west:3,stab:3,mkt:2,biz:2,growth:2,trad:2,tax_lo:2,mil:2,law:1,rel:1,cent:1,unity:1};
+const BG_PPDB={evo:1,euro:3,west:3,plural:3,tech:3,lib:2,mkt:2,eco:2,privacy:2,prog:2,cosmo:2,rehab:1,mil:1,direct:1,tax_lo:1,choice:1};
+const BG_DPS={evo:1,multi:3,lang_min:3,biz:3,stab:2,euro:2,west:2,mkt:2,tax_lo:2,cent:1,imm_pro:1};
+const BG_VAZ={rad:2,emp:1,sov:3,nation:3,antiwest:3,eurasia:3,trad:3,imm_anti:3,prot:3,pop:3,lang_one:3,direct:2,assim:2,rel:2,pac:2,gos:2,unity:2};
+const BG_BSP={evo:1,welfare:3,labor:3,tax_hi:3,pub:3,equal:2,gos:2,trad:2,eurasia:2,pac:2,soviet:2,nat:1,sov:1,agr:1};
+const BG_APS={evo:2,multi:3,lang_min:3,euro:3,lib:2,west:2,plural:2,mkt:1,imm_pro:1,rehab:1};
+const BG_ITN={pop:3,direct:3,trad:2,nation:2,pres:2,law:1,sov:1,mkt:1,tax_lo:1,lang_one:1};
+const BG_MECH={rad:2,law:3,pop:3,nation:2,direct:2,sov:2,trad:2,imm_anti:2,welfare:1,auth:1};
+const BG_VEL={rad:2,nation:3,pop:3,sov:3,antiwest:2,trad:2,direct:2,prot:2,eurasia:1,self:1};
+const BG_PB={evo:1,law:3,stab:2,sov:2,gos:2,welfare:2,pres:2,pac:2,pop:2,nation:1,plural:1,eurasia:1,nat:1,labor:1,trad:1};
+const BG_SIA={evo:1,law:2,plural:2,direct:2,pop:2,pub:1,privacy:1,welfare:1};
+const BC_GERB='#0054A6', BC_PPDB='#E8B800', BC_VAZ='#B08D57', BC_DPS='#7B4FB5', BC_BSP='#D5202F', BC_APS='#2E9E8F', BC_ITN='#4BB9DE', BC_MECH='#1F7A3A', BC_VEL='#8B5A2B', BC_PB='#D4572B', BC_SIA='#F28C00';
+const BG={
+  2024:{note:'October 2024: the seventh election in three and a half years; nine parties enter parliament',low:0,
+    F:[
+      ['BSP – United Left',BC_BSP,'The Socialists under Atanas Zafirov after Korneliya Ninova’s departure: pensions, wages, no arms deliveries to Ukraine. Joined the Zhelyazkov government after the election. 20 seats. Party-list vote: 7.6%.',BG_BSP,0],
+      ['PP–DB',BC_PPDB,'The coalition “We Continue the Change – Democratic Bulgaria”: Kiril Petkov, Assen Vassilev, Hristo Ivanov, Atanas Atanasov. Judicial reform, the fight against the “Peevski model”, the euro and a westward course. 37 seats. Party-list vote: 14.2%.',BG_PPDB,0],
+      ['APS',BC_APS,'The Alliance for Rights and Freedoms: Ahmed Dogan’s supporters, who split from the DPS after Delyan Peevski took over the party. A liberal party of the Turkish minority. 19 seats. Party-list vote: 7.5%.',BG_APS,0],
+      ['DPS – New Beginning',BC_DPS,'The part of the Movement for Rights and Freedoms that stayed with Delyan Peevski, a media magnate under US and UK sanctions. It relies on the Turkish and Roma minorities and on business. 30 seats. Party-list vote: 11.5%.',BG_DPS,0],
+      ['GERB–SDS',BC_GERB,'Boyko Borisov’s centre-right party, the winner of the election: stability, the EU, NATO, the eurozone. Formed Rosen Zhelyazkov’s government together with the BSP and ITN. 69 seats. Party-list vote: 26.4%.',BG_GERB,0],
+      ['There Is Such a People',BC_ITN,'The party of showman Slavi Trifonov: direct democracy, majoritarian elections, conservative values. Joined the Zhelyazkov government. 18 seats. Party-list vote: 6.8%.',BG_ITN,0],
+      ['MECh',BC_MECH,'“Morality, Unity, Honour” of former sports minister Radostin Vassilev: anti-system right-wing populism and a promise to jail “the mafia”. 12 seats. Party-list vote: 4.6%.',BG_MECH,0],
+      ['Velichie',BC_VEL,'A nationalist party that grew around Ivelin Mihaylov’s “Historical Park”. It missed the threshold by 21 votes but entered parliament in March 2025 by a Constitutional Court ruling: 10 seats. Party-list vote: 4.0%.',BG_VEL,0],
+      ['Revival',BC_VAZ,'Kostadin Kostadinov’s nationalists: against the euro, for leaving NATO, reconsidering EU membership and restoring relations with Russia. 35 seats. Party-list vote: 13.4%.',BG_VAZ,0]
+    ],
+    no:[['PP–DB','DPS – New Beginning'],['PP–DB','Revival'],['Revival','DPS – New Beginning'],['GERB–SDS','Revival'],['APS','DPS – New Beginning'],['MECh','DPS – New Beginning'],['Velichie','DPS – New Beginning'],['APS','Revival']],
+    co:[['The Zhelyazkov government',['GERB–SDS','BSP – United Left','There Is Such a People']],['The Zhelyazkov government with Dogan’s support',['GERB–SDS','BSP – United Left','There Is Such a People','APS']],['The “sglobka” (assemblage)',['GERB–SDS','PP–DB']],
+      ['Euro-Atlantic majority',['GERB–SDS','PP–DB','APS']],['GERB and Peevski',['GERB–SDS','DPS – New Beginning']],['Patriotic bloc',['Revival','MECh','Velichie']],['Anti-system majority',['Revival','BSP – United Left','There Is Such a People','MECh','Velichie']]],
+    P:{'GERB–SDS':[['Boyko Borisov',''],['Rosen Zhelyazkov',''],['Tomislav Donchev','eco'],['Temenuzhka Petkova','fin'],['Daniyel Mitov','int'],['Denitsa Sacheva','soc'],['Yekaterina Zakhariyeva','jus'],['Raya Nazaryan','']],
+      'PP–DB':[['Kiril Petkov',''],['Assen Vassilev','fin'],['Nikolai Denkov','edu'],['Khristo Ivanov','jus'],['Atanas Atanasov','def'],['Ivailo Mirchev',''],['Bozhidar Bozhanov','eco'],['Nadezhda Iordanova','']],
+      'Revival':[['Kostadin Kostadinov',''],['Tsoncho Ganev',''],['Petar Petrov','for'],['Angel Georgiyev',''],['Iskra Mikhailova','']],
+      'DPS – New Beginning':[['Delyan Peyevski',''],['Iordan Tsonev','fin'],['Khamid Khamid',''],['Stanislav Anastasov','env'],['Khalil Letifov','']],
+      'BSP – United Left':[['Atanas Zafirov',''],['Borislav Gutsanov','soc'],['Nataliya Kiselova',''],['Dragomir Stoinev','eco'],['Kristian Vigenin','for']],
+      'APS':[['Akhmed Dogan',''],['Dzhevdet Chakarov',''],['Ramadan Atalai',''],['Hayri Sadakov',''],['Taner Ali','']],
+      'There Is Such a People':[['Slavi Trifonov',''],['Toshko Iordanov',''],['Stanislav Balabanov',''],['Grozdan Karadzhov','ter'],['Silvi Kirilov','hea']],
+      'MECh':[['Radostin Vassilev',''],['Kiril Veselinski','']],
+      'Velichie':[['Ivelin Mikhailov',''],['Krasimira Katincharova',''],['Albena Pekova','']]}},
+  2026:{note:'April 2026: former president Rumen Radev wins 131 of 240 seats; five parties clear the threshold',low:1,
+    F:[
+      ['BSP – United Left',BC_BSP,'The Socialists under Krum Zarkov were left without seats in parliament for the first time since 1991: Radev took their voters. Party-list vote: 3.0%.',BG_BSP,1],
+      ['Progressive Bulgaria',BC_PB,'The party of Rumen Radev, who resigned the presidency to run. A promise to break the “oligarchic model”, centre-left economics, caution over aid to Ukraine. 131 of 240 seats and a one-party government since 8 May 2026. Party-list vote: 44.6%.',BG_PB,0],
+      ['Siyanie',BC_SIA,'A new civic movement against impunity for those in power and for the accountability of officials. Party-list vote: 2.9%.',BG_SIA,1],
+      ['PP–DB',BC_PPDB,'The coalition “We Continue the Change – Democratic Bulgaria”: Assen Vassilev, Ivaylo Mirchev, Bozhidar Bozhanov, Atanas Atanasov. The main pro-Western opposition to Radev. 37 seats. Party-list vote: 12.6%.',BG_PPDB,0],
+      ['APS',BC_APS,'The Alliance for Rights and Freedoms of Ahmed Dogan’s supporters: it withdrew its support for the Zhelyazkov government so as not to be in the same boat as Peevski, and failed to clear the threshold. Party-list vote: 1.6%.',BG_APS,1],
+      ['DPS',BC_DPS,'Delyan Peevski’s Movement for Rights and Freedoms. During the campaign, police linked reports of vote buying to it more often than to any other party. 21 seats. Party-list vote: 7.1%.',BG_DPS,0],
+      ['GERB–SDS',BC_GERB,'Boyko Borisov’s party after the Zhelyazkov government resigned amid protests against the budget: the worst result in the party’s history. 39 seats. Party-list vote: 13.4%.',BG_GERB,0],
+      ['There Is Such a People',BC_ITN,'Slavi Trifonov’s party, a member of the Zhelyazkov government, lost almost all its voters. Party-list vote: 0.7%.',BG_ITN,1],
+      ['MECh',BC_MECH,'Radostin Vassilev’s “Morality, Unity, Honour”: anti-system right-wing populism. Threshold not cleared. Party-list vote: 3.2%.',BG_MECH,1],
+      ['Velichie',BC_VEL,'Ivelin Mihaylov’s nationalist party. Threshold not cleared. Party-list vote: 3.1%.',BG_VEL,1],
+      ['Revival',BC_VAZ,'Kostadin Kostadinov’s nationalists lost two thirds of their voters but stayed in parliament: against the euro, NATO and aid to Ukraine. 12 seats. Party-list vote: 4.3%.',BG_VAZ,0]
+    ],
+    no:[['PP–DB','DPS'],['Progressive Bulgaria','DPS'],['Revival','DPS'],['PP–DB','Revival'],['GERB–SDS','Revival'],['MECh','DPS'],['APS','DPS'],['Velichie','DPS'],['Siyanie','DPS']],
+    co:[['Centre-left majority',['Progressive Bulgaria','BSP – United Left']],['Coalition against “the model”',['Progressive Bulgaria','PP–DB']],['Grand coalition',['Progressive Bulgaria','GERB–SDS']],
+      ['Sovereigntist majority',['Progressive Bulgaria','Revival']],['The old status quo',['GERB–SDS','DPS']],['Euro-Atlantic bloc',['GERB–SDS','PP–DB']],['Patriotic bloc',['Revival','MECh','Velichie']]],
+    P:{'Progressive Bulgaria':[['Rumen Radev',''],['Galab Donev','fin'],['Aleksandar Pulev','eco'],['Ivo Khristov',''],['Ivan Demerdzhiyev','int'],['Dimitar Stoyanov','def'],['Velislava Petrova-Chamova','for'],['Atanas Pekanov',''],['Ivan Shishkov','ter'],['Rositsa Karamfilova','env'],['Mihaela Dotsova','']],
+      'GERB–SDS':[['Boyko Borisov',''],['Rosen Zhelyazkov',''],['Tomislav Donchev','eco'],['Temenuzhka Petkova','fin'],['Daniyel Mitov','int'],['Denitsa Sacheva','soc'],['Yekaterina Zakhariyeva','jus'],['Raya Nazaryan','']],
+      'PP–DB':[['Assen Vassilev','fin'],['Ivailo Mirchev',''],['Bozhidar Bozhanov','eco'],['Atanas Atanasov','def'],['Nikolai Denkov','edu'],['Nadezhda Iordanova','jus'],['Andrei Gyurov','']],
+      'DPS':[['Delyan Peyevski',''],['Iordan Tsonev','fin'],['Khamid Khamid',''],['Stanislav Anastasov','env'],['Khalil Letifov','']],
+      'Revival':[['Kostadin Kostadinov',''],['Tsoncho Ganev',''],['Petar Petrov','for'],['Angel Georgiyev',''],['Iskra Mikhailova','']],
+      'BSP – United Left':[['Krum Zarkov','jus'],['Atanas Zafirov',''],['Borislav Gutsanov','soc'],['Nataliya Kiselova',''],['Dragomir Stoinev','eco'],['Kristian Vigenin','for']],
+      'APS':[['Akhmed Dogan',''],['Hayri Sadakov',''],['Taner Ali','']],
+      'There Is Such a People':[['Slavi Trifonov',''],['Toshko Iordanov',''],['Stanislav Balabanov',''],['Grozdan Karadzhov','ter']],
+      'MECh':[['Radostin Vassilev',''],['Kiril Veselinski','']],
+      'Velichie':[['Ivelin Mikhailov',''],['Krasimira Katincharova',''],['Albena Pekova','']],
+      'Siyanie':[]}}
+};
+Object.keys(BG).forEach(y=>{ const D=BG[y];
+  BUILTIN.push({n:'Bulgaria-'+y,d:D.note+' · 240 list seats, 4% threshold · '+D.F.length+' parties',
+    set:{seats:240,sys:'prop',party:'multi',year:+y,span:false,thr:4,thron:true,lowpri:!!D.low,key:'bg'+y,cc:'bg'},
+    raw:{T:BGT,F:D.F,Q:BGQ.filter(q=>q[0]<=+y&&+y<=q[1]).map(q=>q.slice(2)),no:D.no,co:D.co,P:D.P}}); });
+
+// ══════ “Ваша Прекрасная Болгария Будущего”: 2030-е годы ══════
+// Карта: bg:1 — рисуется Болгария по областям; inc — присоединённые соседние страны, split — области с особым статусом.
+const B_TRI=['#FFFFFF','#00966E','#D62612'], B_EU={s:['#003399'],e:'✪',ec:'#FFCC00',ep:'c'}, G_TURK=['09','17','25','27','19'];
+FUT_ERA.push({k:'bg',cc:'bg',from:2024,to:2026,when:'The 2030s',intro:'What Bulgaria will become by the 2030s if the country goes where your answers and your parliament lead.'});
+FUT.bg=[
+  {n:'Republic of Bulgaria',lead:'Rumen Radev',ideo:'Sovereign centrism',form:'Parliamentary republic with a dominant party',party:['Progressive Bulgaria',BC_PB],flag:{s:B_TRI},map:{bg:1},fam:['Progressive Bulgaria'],
+    w:{law:3,stab:3,sov:2,gos:2,welfare:2,pac:2,pop:2,nation:1,evo:2,eurasia:1,rad:-2,biz:-2,sep:-2,tax_lo:-1}},
+  {n:'Republic of Bulgaria',lead:'Iliana Iotova',ideo:'Presidential paternalism',form:'Presidential republic after a referendum',party:['Progressive Bulgaria',BC_PB],flag:{s:B_TRI},map:{bg:1},fam:['Progressive Bulgaria'],
+    w:{pres:4,direct:2,stab:2,sov:2,welfare:2,gos:1,trad:1,parl:-4,plural:-2,tech:-1}},
+  {n:'Republic of Bulgaria',lead:'Boyko Borisov',ideo:'Euro-Atlantic conservatism',form:'Parliamentary republic: coalitions built around one party',party:['GERB–SDS',BC_GERB],flag:{s:B_TRI},map:{bg:1},fam:['GERB–SDS'],
+    w:{stab:3,euro:3,west:3,mkt:2,biz:2,growth:2,tax_lo:2,trad:2,mil:2,evo:3,rad:-3,antiwest:-3,eurasia:-3,tax_hi:-2}},
+  {n:'Republic of Bulgaria',lead:'Delyan Peyevski',ideo:'Oligarchic centrism',form:'A captured state: courts, security services and media in the same hands',party:['DPS',BC_DPS],flag:{s:B_TRI},map:{bg:1},fam:['DPS','DPS – New Beginning'],
+    w:{biz:4,stab:3,multi:3,lang_min:2,cent:2,tax_lo:2,mkt:2,euro:2,west:1,auth:2,imm_pro:1,plural:-4,direct:-3,privacy:-3,pop:-2,rad:-2,equal:-2}},
+  {n:'Republic of Bulgaria',lead:'Assen Vassilev',ideo:'Liberal reformism',form:'Parliamentary republic after judicial reform',party:['PP–DB',BC_PPDB],flag:{s:B_TRI},map:{bg:1},fam:['PP–DB'],
+    w:{plural:4,euro:3,west:3,privacy:2,lib:2,mkt:1,tech:2,welfare:1,direct:1,evo:1,antiwest:-3,eurasia:-3,auth:-3,stab:-1}},
+  {n:'Republic of Bulgaria',lead:'Kiril Petkov',ideo:'Start-up liberalism',form:'Parliamentary republic, a “Balkan Silicon Valley”',party:['We Continue the Change','#00A3E0'],flag:{s:B_TRI},map:{bg:1},fam:['PP–DB'],
+    w:{biz:3,tech:3,mkt:3,growth:3,tax_lo:2,west:3,euro:2,imm_pro:2,lib:1,gos:-3,nat:-3,soviet:-3,antiwest:-3,prot:-2}},
+  {n:'Republic of Bulgaria',lead:'Vasil Terziyev',ideo:'Urban technocracy',form:'Parliamentary republic of mayors and municipalities',party:['Save Sofia','#1E88E5'],flag:{s:B_TRI},map:{bg:1},fam:['PP–DB'],
+    w:{tech:3,fed:3,eco:3,growth:1,lib:1,euro:2,evo:3,pub:1,cent:-3,pop:-2,rad:-3,nation:-2,agr:-1}},
+  {n:'Republic of Bulgaria',lead:'Kristalina Georgieva',ideo:'Brussels technocracy',form:'A government of experts with weak parties',party:['Cabinet of Experts','#5B6FD6'],flag:{s:B_TRI},map:{bg:1},fam:['GERB–SDS','PP–DB'],
+    w:{tech:4,euro:3,self:2,mkt:2,west:2,evo:3,stab:1,pop:-4,direct:-3,nation:-2,rad:-3,welfare:-1}},
+  {n:'European Federation: State of Bulgaria',lead:'Mariya Gabriel',ideo:'European federalism',form:'A constituent state of a federal Europe',party:['European People’s Party','#003399'],flag:B_EU,map:{bg:1},fam:['GERB–SDS','PP–DB'],
+    w:{euro:4,cosmo:4,west:2,rad:1,imm_pro:1,multi:1,sov:-4,nation:-4,antiwest:-3,prot:-2,eurasia:-3}},
+  {n:'Republic of Bulgaria',lead:'Kostadin Kostadinov',ideo:'National sovereigntism',form:'Presidential republic outside the EU and NATO',party:['Revival',BC_VAZ],flag:{s:B_TRI},map:{bg:1},fam:['Revival'],
+    w:{sov:4,nation:3,antiwest:3,eurasia:2,prot:3,imm_anti:3,trad:2,lang_one:2,pop:2,rad:2,euro:-4,west:-4,cosmo:-3,multi:-2}},
+  {n:'Greater Bulgaria',lead:'Krasimir Karakachanov',ideo:'Irredentism',form:'Unitary republic within the San Stefano borders',party:['VMRO','#8B0000'],flag:{s:B_TRI,e:'♛',ec:'#B8860B',ep:'c'},map:{bg:1,inc:['MKD']},fam:['Revival','Velichie'],
+    w:{emp:4,nation:4,mil:3,rad:3,assim:2,trad:2,unity:2,lang_one:2,cosmo:-4,pac:-4,multi:-3,evo:-3}},
+  {n:'Bulgarian-Macedonian Federation',lead:'Ljubčo Georgievski',ideo:'Fraternal federalism',form:'A federation of two republics inside the EU',party:['Union of Two Republics','#C2571A'],flag:{s:['#FFFFFF','#00966E','#D62612','#F8C300']},map:{bg:1,inc:['MKD']},fam:['GERB–SDS'],
+    w:{emp:3,fed:4,euro:2,multi:1,evo:2,nation:1,cosmo:1,mil:-3,rad:-2,cent:-3,assim:-1}},
+  {n:'Tsardom of Bulgaria',lead:'Simeon II',ideo:'Monarchism',form:'Constitutional monarchy',party:['National Movement for Stability and Progress','#E3B505'],flag:{s:B_TRI,e:'♔',ec:'#B8860B',ep:'c'},map:{bg:1},fam:[],
+    w:{mon:4,trad:3,stab:2,rel:1,euro:1,evo:1,soviet:-3,sec:-2,rad:-1}},
+  {n:'Orthodox Bulgaria',lead:'Patriarch Daniil',ideo:'Orthodox traditionalism',form:'A republic under the spiritual guidance of the Synod',party:['Orthodox Council','#8A6D1B'],flag:{s:['#F8F4E3'],e:'☦',ec:'#8A6D1B',ep:'c'},map:{bg:1},fam:['Revival'],
+    w:{rel:4,trad:4,antiwest:2,auth:1,eurasia:1,sec:-4,prog:-4,lib:-3,cosmo:-2}},
+  {n:'Republic of Bulgaria',lead:'Krum Zarkov',ideo:'Social democracy',form:'Parliamentary republic with a left-wing government',party:['BSP – United Left',BC_BSP],flag:{s:B_TRI},map:{bg:1},fam:['BSP – United Left'],
+    w:{welfare:3,labor:3,tax_hi:3,pub:3,equal:2,euro:2,plural:1,evo:3,mkt:-2,tax_lo:-3,rad:-2,self:-2,nation:-1}},
+  {n:'Republic of Bulgaria',lead:'Vanya Grigorova',ideo:'Democratic socialism',form:'Parliamentary republic of trade unions and municipalities',party:['Solidary Bulgaria','#E03C31'],flag:{s:B_TRI},map:{bg:1},fam:['BSP – United Left'],
+    w:{equal:4,labor:4,nat:3,tax_hi:3,pub:2,pac:2,direct:2,rad:2,biz:-4,priv:-4,mkt:-3,mil:-2,tax_lo:-3}},
+  {n:'Republic of Bulgaria',lead:'Korneliya Ninova',ideo:'Left conservatism',form:'Parliamentary republic with a “national left” course',party:['Unbowed Bulgaria','#A01C1C'],flag:{s:B_TRI},map:{bg:1},fam:['BSP – United Left','Revival'],
+    w:{trad:4,welfare:3,sov:3,gos:2,nation:2,antiwest:2,pac:2,soviet:1,prog:-4,cosmo:-3,euro:-1,mkt:-2,west:-2}},
+  {n:'People’s Republic of Bulgaria',lead:'Nikolai Malinov',ideo:'Russophile socialism',form:'Socialist republic in a union with Russia',party:['Russophiles for the Revival of the Fatherland','#B30000'],flag:{s:B_TRI,e:'☭',ec:'#FFD700'},map:{bg:1},fam:['Revival','BSP – United Left'],
+    w:{eurasia:4,soviet:4,antiwest:4,rad:3,nat:3,gos:2,west:-4,euro:-4,mkt:-3,lib:-2,evo:-3}},
+  {n:'Republic of Bulgaria',lead:'Slavi Trifonov',ideo:'Direct democracy',form:'Presidential republic with majoritarian elections and referendums',party:['There Is Such a People',BC_ITN],flag:{s:B_TRI},map:{bg:1},fam:['There Is Such a People'],
+    w:{direct:4,pop:4,pres:2,trad:1,nation:1,law:1,tech:-3,parl:-3,stab:-2,cosmo:-1}},
+  {n:'Republic of Bulgaria',lead:'Radostin Vassilev',ideo:'Anti-system populism',form:'Emergency rule “against the mafia”',party:['MECh',BC_MECH],flag:{s:B_TRI},map:{bg:1},fam:['MECh'],
+    w:{law:4,rad:4,pop:3,auth:2,nation:2,sov:2,trad:2,direct:2,imm_anti:2,welfare:1,stab:-4,evo:-4,biz:-3,rehab:-3,multi:-1}},
+  {n:'Republic of Bulgaria',lead:'Ivelin Mikhailov',ideo:'National romanticism',form:'A leader-centred republic of the “new Bulgarians”',party:['Velichie',BC_VEL],flag:{s:B_TRI},map:{bg:1},fam:['Velichie'],
+    w:{nation:4,pop:3,rad:3,sov:3,trad:2,antiwest:2,self:2,prot:2,direct:1,euro:-3,tech:-3,cosmo:-3,stab:-2}},
+  {n:'Republic of Bulgaria',lead:'Akhmed Dogan',ideo:'The “Bulgarian ethnic model”',form:'Parliamentary republic of ethnic accord',party:['APS',BC_APS],flag:{s:B_TRI},map:{bg:1},fam:['APS'],
+    w:{multi:4,lang_min:3,lib:2,euro:2,plural:2,evo:3,west:1,rehab:1,nation:-4,assim:-4,lang_one:-3,rad:-3,imm_anti:-2}},
+  {n:'Federal Republic of Bulgaria',lead:'Lyutvi Mestan',ideo:'Autonomism',form:'A federation with autonomous Turkish-majority provinces',party:['DOST','#007A5E'],flag:{s:B_TRI},map:{bg:1,split:[[G_TURK,'#F2B705']]},fam:['APS','DPS','DPS – New Beginning'],
+    w:{sep:4,fed:4,lang_min:4,multi:3,rad:2,unity:-4,nation:-4,cent:-3,lang_one:-4,assim:-3}},
+  {n:'Republic of Bulgaria',lead:'Borislav Sandov',ideo:'Green politics',form:'Parliamentary republic with a “green” government',party:['Green Movement','#3E8E41'],flag:{s:B_TRI},map:{bg:1},fam:['PP–DB'],
+    w:{eco:4,prog:3,lib:2,euro:2,direct:1,pub:1,pac:1,rehab:1,growth:-4,nat:-1,trad:-2,nation:-2,mil:-1}}
+];

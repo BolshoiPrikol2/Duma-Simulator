@@ -402,7 +402,7 @@ span.tchip{cursor:default}
 .fut-vis figure{margin:0}
 .fut-vis figcaption{font-size:12px;color:var(--ink2);text-align:center;margin-top:2px}
 .fut-map{width:100%;height:auto;display:block}
-.fut-map use{stroke:var(--ink3);stroke-width:.6;stroke-opacity:.55}
+.fut-map use,.fut-map path{stroke:var(--ink3);stroke-width:.6;stroke-opacity:.55}
 .fut-map .off{fill:var(--line2)}
 .fut-t{margin:14px 0 0;font-size:14.5px}
 @media (max-width:640px){ .fut-body{grid-template-columns:1fr} .fut-head b{font-size:19px} }
