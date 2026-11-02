@@ -36,7 +36,7 @@ function norm(c){
   c.span=c.span!==false; c.year=Math.round(+c.year)||0;
   c.dshare=Number.isFinite(+c.dshare)&&c.dshare!==null&&c.dshare!==undefined?Math.max(0,Math.min(100,Math.round(+c.dshare))):50;
   c.thr=Math.max(0,Math.min(20,Math.round((+c.thr||0)*2)/2)); c.thron=!!c.thron; c.key=typeof c.key==='string'?c.key.slice(0,12):'';
-  c.lowpri=c.lowpri===true; c.cc=['bg','de'].includes(c.cc)?c.cc:''; // cc — страна сценария: пусто — Россия, bg — Болгария, de — Германия
+  c.lowpri=c.lowpri===true; c.cc=['bg','de','se'].includes(c.cc)?c.cc:''; // cc — страна сценария: пусто — Россия, bg — Болгария, de — Германия, se — Швеция
   c.gate=okf(c.gate)?c.gate:-1; c.gnote=String(c.gnote||'').slice(0,400);
   c.fams.forEach((f,i)=>{ if(!okf(f.cap)||f.cap===i) f.cap=-1; });
   c.duo=[0,1].map(k=>{ const v=Math.round(+(c.duo||[])[k]); return v>=0&&v<c.fams.length?v:-1; });
@@ -67,7 +67,8 @@ const gateOut=()=>C.gate>=0&&!!C.fams[C.gate]&&S.gv>0; // партия не до
 // Подписи, которые зависят от страны сценария
 const CCN={'':{your:'Your Duma of',show:'Show my Duma',wb:'State Duma election (',inp:'in the State Duma',fut:'Your Beautiful Russia of the Future',of:'your Duma'},
   bg:{your:'Your National Assembly of',show:'Show my National Assembly',wb:'Election to the National Assembly of Bulgaria (',inp:'in the National Assembly',fut:'Your Beautiful Bulgaria of the Future',of:'your parliament'},
-  de:{your:'Your Reichstag of',show:'Show my Reichstag',wb:'German Reichstag election (',inp:'in the Reichstag',fut:'Your Beautiful Germany of the Future',of:'your Reichstag'}};
+  de:{your:'Your Reichstag of',show:'Show my Reichstag',wb:'German Reichstag election (',inp:'in the Reichstag',fut:'Your Beautiful Germany of the Future',of:'your Reichstag'},
+  se:{your:'Your Riksdag',show:'Show my Riksdag',wb:'Elections to the Second Chamber of the Riksdag (',inp:'in the Riksdag',fut:'Your Beautiful Sweden of the Future',of:'of your Riksdag'}};
 const CN=()=>CCN[C.cc]||CCN[''], yourT=()=>C.year?CN().your+' '+C.year+' ':'Your parliament';
 const NEWREG=['DON','LUG','ZAP','KHE']; // регионы, включённые в 2022 году
 const maj=()=>Math.floor(C.seats/2)+1, bonus=()=>R.party==='dom'?maj():0, pool=()=>C.seats-bonus();
@@ -210,6 +211,7 @@ function viewBuild(){
     '<span class="lbl" style="margin:0">State Duma elections</span><div class="presets">'+BUILTIN.map((p,i)=>p.set.year&&!p.h&&!p.set.cc?'<button type="button" class="preset" data-act="pre" data-i="'+i+'" aria-pressed="'+(C.name===p.n)+'"><b>'+esc(p.n)+'</b><span>'+esc(p.d)+'</span></button>':'').join('')+'</div>'+
     '<span class="lbl" style="margin:0">Elections to the National Assembly of Bulgaria</span><div class="presets">'+BUILTIN.map((p,i)=>p.set.cc==='bg'&&!p.h?'<button type="button" class="preset" data-act="pre" data-i="'+i+'" aria-pressed="'+(C.name===p.n)+'"><b>'+esc(p.n)+'</b><span>'+esc(p.d)+'</span></button>':'').join('')+'</div>'+
     '<span class="lbl" style="margin:0">German Reichstag elections</span><div class="presets">'+BUILTIN.map((p,i)=>p.set.cc==='de'&&!p.h?'<button type="button" class="preset" data-act="pre" data-i="'+i+'" aria-pressed="'+(C.name===p.n)+'"><b>'+esc(p.n)+'</b><span>'+esc(p.d)+'</span></button>':'').join('')+'</div>'+
+    '<span class="lbl" style="margin:0">Elections to the Swedish Riksdag</span><div class="presets">'+BUILTIN.map((p,i)=>p.set.cc==='se'&&!p.h?'<button type="button" class="preset" data-act="pre" data-i="'+i+'" aria-pressed="'+(C.name===p.n)+'"><b>'+esc(p.n)+'</b><span>'+esc(p.d)+'</span></button>':'').join('')+'</div>'+
     '<span class="lbl" style="margin:0">Standard test and my presets</span><div class="presets">'+BUILTIN.map((p,i)=>p.set.year||p.h?'':'<button type="button" class="preset" data-act="pre" data-i="'+i+'" aria-pressed="'+(C.name===p.n)+'"><b>'+esc(p.n)+'</b><span>'+esc(p.d)+'</span></button>').join('')+
       USER.map((p,i)=>'<div class="pwrap"><button type="button" class="preset" data-act="upre" data-i="'+i+'" aria-pressed="'+(C.name===p.n)+'"><b>'+esc(p.n)+'</b><span>My preset · '+mest(p.c.seats)+' · '+p.c.fams.length+' '+plural(p.c.fams.length,'party','parties','parties')+'</span></button><button type="button" class="x" data-act="delPre" data-i="'+i+'" aria-label="Delete preset">×</button></div>').join('')+'</div>'+
     '<div class="psave"><input class="in" id="pname" value="'+esc(C.name)+'" maxlength="60" aria-label="Preset name" placeholder="Preset name"><button type="button" class="chip" data-act="savePre">Save the current test as a preset</button>'+(PREV?'<button type="button" class="link" data-act="undo">Restore the test that was open before loading</button>':'')+'<span class="hint" id="pmsg">'+esc(PMSG)+'</span></div></section>'+
@@ -801,6 +803,7 @@ function futRank(st){ const era=futEra(); if(!era||typeof FUT==='undefined'||!S.
   return {era,list}; }
 function flagSvg(f){ const tot=sum(f.s.map(x=>Array.isArray(x)?x[1]:1)); let y=0;
   let h='<svg class="fut-flag" viewBox="0 0 90 60" role="img" aria-label="Flag">'+f.s.map(x=>{ const c=Array.isArray(x)?x[0]:x, hh=60*(Array.isArray(x)?x[1]:1)/tot, r='<rect x="0" y="'+y+'" width="90" height="'+(hh+.4)+'" fill="'+c+'"/>'; y+=hh; return r; }).join('');
+  if(f.x) h+='<rect x="25" y="0" width="12" height="60" fill="'+f.x+'"/><rect x="0" y="24" width="90" height="12" fill="'+f.x+'"/>'; // скандинавский крест
   if(f.h) h+='<rect x="0" y="0" width="12" height="60" fill="'+f.h+'"/>';
   if(f.e) h+=f.ep==='c'?'<text x="45" y="42" font-size="34" text-anchor="middle" fill="'+f.ec+'">'+f.e+'</text>':'<text x="'+(f.h?27:17)+'" y="25" font-size="22" text-anchor="middle" fill="'+f.ec+'">'+f.e+'</text>';
   return h+'</svg>'; }
@@ -811,7 +814,7 @@ function futDefs(){ if(document.getElementById('futdefs')) return; const M=windo
 // В контуре Украины Крыма нет: он рисуется отдельно, когда Украина в составе или у концовки стоит cr.
 // nr — нынешние границы: Донецкая, Луганская, Запорожская и Херсонская области в составе России (целиком, как в российской Конституции)
 function futMapSvg(m,col){
-  if(m.bg||m.de){ const B=m.bg?window.BGMAP:window.DEMAP; if(!B) return ''; const sp={}, inc=m.inc||[], O=B.o||{}; (m.split||[]).forEach(g=>g[0].forEach(id=>{ sp[id]=g[1]; })); // своя карта страны: соседи серым, only — уцелевшая часть
+  if(m.bg||m.de||m.se){ const B=m.bg?window.BGMAP:m.de?window.DEMAP:window.SEMAP; if(!B) return ''; const sp={}, inc=m.inc||[], O=B.o||{}; (m.split||[]).forEach(g=>g[0].forEach(id=>{ sp[id]=g[1]; })); // своя карта страны: соседи серым, only — уцелевшая часть
     return '<svg class="fut-map" viewBox="0 0 '+B.w+' '+B.h+'" role="img" aria-label="Borders">'+Object.keys(B.c).map(k=>'<path d="'+B.c[k]+'" '+(inc.includes(k)?'fill="'+col+'" fill-opacity=".7"':'class="off"')+'/>').join('')+
       Object.keys(B.r).map(id=>'<path d="'+B.r[id]+'" '+(m.only?'class="off"':'fill="'+(sp[id]||col)+'"')+'/>').join('')+(m.only||[]).filter(id=>O[id]).map(id=>'<path d="'+O[id]+'" fill="'+col+'"/>').join('')+'</svg>'; }
   const M=window.RUMAP, K=window.FUTMAP||{}; if(!M) return ''; futDefs();

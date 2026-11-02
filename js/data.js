@@ -7,14 +7,14 @@ const TR=[
   ['gos','State regulation','Economy'],['mkt','Free market','Economy'],['tax_hi','High taxes and redistribution','Economy'],['tax_lo','Low taxes','Economy'],
   ['labor','Workers’ protection','Economy'],['biz','Business freedom','Economy'],['nat','State ownership','Economy'],['priv','Privatisation','Economy'],['prot','Protectionism','Economy'],
   ['welfare','Welfare state','Social policy'],['self','Personal responsibility','Social policy'],['pub','Public services','Social policy'],['choice','Private choice in services','Social policy'],['equal','Egalitarianism','Social policy'],
-  ['prog','Progressivism','Values'],['trad','Traditionalism','Values'],['sec','Secularism','Values'],['rel','Religiosity','Values'],['lib','Personal freedoms','Values'],['soviet','Soviet legacy','Values'],
+  ['dry','Temperance','Values'],['fem','Feminism','Values'],['prog','Progressivism','Values'],['trad','Traditionalism','Values'],['sec','Secularism','Values'],['rel','Religiosity','Values'],['lib','Personal freedoms','Values'],['soviet','Soviet legacy','Values'],
   ['auth','Authoritarianism','Power and order'],['law','Tough punishment','Power and order'],['rehab','Humane justice','Power and order'],['privacy','Privacy protection','Power and order'],
   ['mil','Militarism','Power and order'],['pac','Pacifism','Power and order'],['pop','Populism','Power and order'],['tech','Technocracy','Power and order'],['direct','Direct democracy','Power and order'],['pres','Strong presidency','Power and order'],['parl','Parliamentarism','Power and order'],['stab','Stability and continuity','Power and order'],['plural','Political competition','Power and order'],
   ['imm_pro','Pro-immigration','Migration'],['imm_anti','Anti-immigration','Migration'],['multi','Multiculturalism','Migration'],['assim','Assimilation','Migration'],
   ['fed','Regionalism','Territory'],['cent','Centralism','Territory'],['sep','Right to self-determination','Territory'],['unity','Unity of the country','Territory'],['lang_min','Minority languages','Territory'],['lang_one','Single state language','Territory'],
   ['eco','Environmentalism','Environment'],['growth','Growth first','Environment'],['agr','Agrarianism','Environment'],
   ['euro','European integration','World'],['sov','Sovereigntism','World'],['nation','Nationalism','World'],['cosmo','Internationalism','World'],
-  ['west','Rapprochement with the West','World'],['antiwest','Confrontation with the West','World'],['eurasia','Eurasian integration','World'],
+  ['nord','Nordic unity','World'],['antisov','Anti-Sovietism','World'],['west','Rapprochement with the West','World'],['antiwest','Confrontation with the West','World'],['eurasia','Eurasian integration','World'],
   ['evo','Gradual change','The Future'],['rad','Radical rupture','The Future'],['emp','Restoring the empire','The Future'],['mon','Monarchism','The Future']
 ];
 const DEF_T=[
